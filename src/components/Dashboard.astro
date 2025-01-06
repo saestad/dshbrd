@@ -1,24 +1,391 @@
 ---
-import astroLogo from '../assets/astro.svg';
-import background from '../assets/bg5.svg';
+import brndLogo from "../assets/brnd.svg";
+import background from "../assets/bg5.svg";
 ---
 
 <div id="container">
-	<img id="background" src={background.src} alt="" fetchpriority="high" />
-	<main>
-        
-	</main>
-</div>
-<style>
+  <img id="background" src={background.src} alt="" fetchpriority="high" />
+  <main>
+    <div>
+      <div id="wrapper">
+        <div id="chart"></div>
+        <hr id="separator" />
+        <div id="chart2"></div>
+        <!-- <a class="link" href="https://www.hvakosterstrommen.no"
+          >hvakosterstrommen.no</a
+        > -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const responseDag1 = await fetch(
+      "https://www.hvakosterstrommen.no/api/v1/prices/2025/01-06_NO2.json"
+    );
+    const stroms1 = await responseDag1.json();
+    const stromtimestart1 = stroms1.map(
+      (strom: { time_start: any }) => strom.time_start
+    );
+    const strompricenok = stroms1.map((strom: { NOK_per_kWh: number }) =>
+      parseFloat((strom.NOK_per_kWh * 1.25 * 100).toFixed(1))
+    );
+
+    const dayNumbers1 = stromtimestart1.map(
+      (timestamp: string | number | Date) => {
+        const date = new Date(timestamp);
+        return date.getHours();
+      }
+    );
+
+    const result1 = strompricenok.reduce(
+      (
+        acc: {
+          max: { value: any; time?: any };
+          min: { value: any; time?: any };
+        },
+        curr: number,
+        index: string | number
+      ) => {
+        if (curr > acc.max.value) {
+          acc.max = { value: curr, time: dayNumbers1[index] };
+        }
+        if (curr < acc.min.value) {
+          acc.min = { value: curr, time: dayNumbers1[index] };
+        }
+        return acc;
+      },
+      {
+        max: { value: -Infinity, time: null },
+        min: { value: Infinity, time: null },
+      }
+    );
+
+    const highestPrice1 = result1.max.value.toFixed(1);
+    const highestTime1 = result1.max.time;
+    const lowestPrice1 = result1.min.value.toFixed(1);
+    const lowestTime1 = result1.min.time;
+
+    const responseDag2 = await fetch(
+      "https://www.hvakosterstrommen.no/api/v1/prices/2025/01-07_NO2.json"
+    );
+    const stroms2 = await responseDag2.json();
+    const stromtimestart2 = stroms2.map(
+      (strom: { time_start: any }) => strom.time_start
+    );
+    const strompricenok2 = stroms2.map((strom: { NOK_per_kWh: number }) =>
+      parseFloat((strom.NOK_per_kWh * 1.25 * 100).toFixed(1))
+    );
+
+    const dayNumbers2 = stromtimestart2.map(
+      (timestamp: string | number | Date) => {
+        const date = new Date(timestamp);
+        return date.getHours();
+      }
+    );
+
+    const result2 = strompricenok2.reduce(
+      (
+        acc: {
+          max: { value: any; time?: any };
+          min: { value: any; time?: any };
+        },
+        curr: number,
+        index: string | number
+      ) => {
+        if (curr > acc.max.value) {
+          acc.max = { value: curr, time: dayNumbers2[index] };
+        }
+        if (curr < acc.min.value) {
+          acc.min = { value: curr, time: dayNumbers2[index] };
+        }
+        return acc;
+      },
+      {
+        max: { value: -Infinity, time: null },
+        min: { value: Infinity, time: null },
+      }
+    );
+
+    const highestPrice2 = result2.max.value.toFixed(1);
+    const highestTime2 = result2.max.time;
+    const lowestPrice2 = result2.min.value.toFixed(1);
+    const lowestTime2 = result2.min.time;
+
+    import ApexCharts from "apexcharts";
+
+    const options1 = {
+      chart: {
+        id: "chart",
+        type: "area",
+        height: 200,
+        foreColor: "#ccc",
+        toolbar: {
+          autoSelected: "pan",
+          show: false,
+        },
+      },
+      colors: ["#00BAEC"],
+      stroke: {
+        width: 3,
+      },
+      grid: {
+        borderColor: "#555",
+        clipMarkers: false,
+        yaxis: {
+          lines: {
+            show: false,
+          },
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      fill: {
+        gradient: {
+          enabled: true,
+          opacityFrom: 0.55,
+          opacityTo: 0,
+        },
+      },
+    //   markers: {
+    //     size: 5,
+    //     colors: ["#000524"],
+    //     strokeColor: "#00BAEC",
+    //     strokeWidth: 3,
+    //   },
+      tooltip: {
+        theme: "dark",
+      },
+      yaxis: {
+        min: 0,
+        tickAmount: 4,
+      },
+      series: [
+        {
+          name: "priceNOK",
+          data: strompricenok,
+        },
+      ],
+      xaxis: {
+        categories: dayNumbers1,
+      },
+      annotations: {
+        points: [
+          {
+            x: highestTime1,
+            y: parseFloat(highestPrice1),
+            marker: {
+              size: 4,
+              fillColor: "#FF4560",
+              strokeColor: "#FF4560",
+              radius: 3,
+            },
+            label: {
+              borderColor: "#FF4560",
+              offsetY: -10,
+              style: {
+                color: "#000",
+                background: "#FF4560",
+                fontSize: "13px",
+              },
+              text: `${highestPrice1} øre`,
+            },
+          },
+          {
+            x: lowestTime1,
+            y: parseFloat(lowestPrice1),
+            marker: {
+              size: 4,
+              fillColor: "#00E396",
+              strokeColor: "#00E396",
+              radius: 3,
+            },
+            label: {
+              borderColor: "#00E396",
+              offsetY: -10,
+              style: {
+                color: "#000",
+                background: "#00E396",
+                fontSize: "13px",
+              },
+              text: `${lowestPrice1} øre`,
+            },
+          },
+        ],
+      },
+    };
+
+    const options2 = {
+      chart: {
+        id: "chart2",
+        type: "area",
+        height: 200,
+        foreColor: "#ccc",
+        toolbar: {
+          autoSelected: "pan",
+          show: false,
+        },
+      },
+      colors: ["#00BAEC"],
+      stroke: {
+        width: 3,
+      },
+      grid: {
+        borderColor: "#555",
+        clipMarkers: false,
+        yaxis: {
+          lines: {
+            show: false,
+          },
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      fill: {
+        gradient: {
+          enabled: true,
+          opacityFrom: 0.55,
+          opacityTo: 0,
+        },
+      },
+    //   markers: {
+    //     size: 5,
+    //     colors: ["#000524"],
+    //     strokeColor: "#00BAEC",
+    //     strokeWidth: 3,
+    //   },
+      tooltip: {
+        theme: "dark",
+      },
+      yaxis: {
+        min: 0,
+        tickAmount: 4,
+      },
+      series: [
+        {
+          name: "priceNOK",
+          data: strompricenok2,
+        },
+      ],
+      xaxis: {
+        categories: dayNumbers2,
+      },
+      annotations: {
+        points: [
+          {
+            x: highestTime2,
+            y: parseFloat(highestPrice2),
+            marker: {
+              size: 4,
+              fillColor: "#FF4560",
+              strokeColor: "#FF4560",
+              radius: 3,
+            },
+            label: {
+              borderColor: "#FF4560",
+              offsetY: -10,
+              style: {
+                color: "#000",
+                background: "#FF4560",
+                fontSize: "13px",
+              },
+              text: `${highestPrice2} øre`,
+            },
+          },
+          {
+            x: lowestTime2,
+            y: parseFloat(lowestPrice2),
+            marker: {
+              size: 4,
+              fillColor: "#00E396",
+              strokeColor: "#00E396",
+              radius: 3,
+            },
+            label: {
+              borderColor: "#00E396",
+              offsetY: -10,
+              style: {
+                color: "#000",
+                background: "#00E396",
+                fontSize: "13px",
+              },
+              text: `${lowestPrice2} øre`,
+            },
+          },
+        ],
+      },
+    };
+
+    var chart1 = new ApexCharts(document.querySelector("#chart"), options1);
+    chart1.render();
+
+    var chart2 = new ApexCharts(document.querySelector("#chart2"), options2);
+    chart2.render();
+  </script>
+  <style>
+    h1,
+    h2,
+    h3,
+    h4,
+    h4,
+    p {
+      margin: 0;
+      padding: 0;
+    }
+    .link {
+      position: absolute;
+      bottom: 7px;
+      right: 13px;
+      z-index: 10;
+      color: #ccc;
+      font-size: 12px;
+      text-decoration: none;
+      font-family: Helvetica, Arial;
+    }
     #background {
-		position: fixed;
-		top: 0;
-		left: 0;
-        object-fit: cover;
-		width: 100%;
-		height: 100%;
-		z-index: -1;
-	}
+      position: fixed;
+      top: 0;
+      left: 0;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    /* #wrapper {
+      position: relative;
+      background: #000524;
+      border: 1px solid #000;
+      box-shadow: 0 22px 35px -16px rgba(0, 0, 0, 0.71);
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: 15px;
+    } */
+    #wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #000524;
+      border: 1px solid #000;
+      box-shadow: 0 22px 35px -16px rgba(0, 0, 0, 0.71);
+      max-width: 700px;
+      width: 100%; /* Optional, ensures the wrapper can be responsive */
+      border-radius: 15px;
+    }
+    #container {
+      font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans",
+        Arial, sans-serif;
+      height: 100%;
+    }
+    #separator {
+  border: none;
+  height: 0.7px;
+  background-color: rgba(211, 211, 211, 0.315);
+  width: 95%; /* 80% of the wrapper width */
+  margin: auto; /* Optional, adds space above and below the line */
+  border-radius: 5px;
 
-
-</style>
+}
+  </style>
+</div>
