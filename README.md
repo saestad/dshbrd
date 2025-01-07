@@ -42,6 +42,10 @@ E.g: http://192.168.1.1:1234/
 
 ## Roadmap
 
+- Color price graph
+
+- Red/green marking for min/max hour (underline?)
+
 - EL costs of a shower, cooking a pizza, charging EV, washing dishes or clothes
 
 - RSS-feed from https://www.hvakosterstrommen.no/rss/prices/NO2 using https://docs.astro.build/en/recipes/rss/
