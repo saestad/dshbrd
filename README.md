@@ -42,6 +42,8 @@ E.g: http://192.168.1.1:1234/
 
 ## Roadmap
 
+- Price after strømstøtte
+
 - Color price graph
 
 - Red/green marking for min/max hour (underline?)
